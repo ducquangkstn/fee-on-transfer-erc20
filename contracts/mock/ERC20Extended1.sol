@@ -21,10 +21,9 @@ contract ERC20Extended1 is ERC20, IERC20Extended {
         address to,
         uint256 value
     ) internal override {
-        uint256 burnAmount = value / 100;
+        uint256 transferAmount = (value * 99) / 100;
+        uint256 burnAmount = value.sub(transferAmount);
         _burn(from, burnAmount);
-        uint256 transferAmount = value.sub(burnAmount);
-
         super._transfer(from, to, transferAmount);
     }
 
@@ -53,8 +52,8 @@ contract ERC20Extended1 is ERC20, IERC20Extended {
         address, /*_to*/
         uint256 _sentAmount
     ) external override view returns (uint256 receivedAmount, uint256 feeAmount) {
-        feeAmount = _sentAmount / 100;
-        receivedAmount = _sentAmount.sub(feeAmount);
+        receivedAmount = (_sentAmount * 99) / 100;
+        feeAmount = _sentAmount.sub(receivedAmount);
     }
 
     function getSendAmount(

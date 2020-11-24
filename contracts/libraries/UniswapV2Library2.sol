@@ -4,6 +4,8 @@ import "@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol";
 
 import "../interfaces/IERC20Extended.sol";
 
+import "@nomiclabs/buidler/console.sol";
+
 library UniswapV2Library2 {
     function getReservesInfo(
         address factory,
@@ -24,6 +26,9 @@ library UniswapV2Library2 {
         (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
+    /// @dev getAmountOut when trade tokenWithFee
+    /// @return amounts temporary amountOut when call to pair
+    /// @return acutalAmountOut the final received amount
     function getAmountsOut(
         address factory,
         uint256 amountIn,
@@ -31,7 +36,7 @@ library UniswapV2Library2 {
         address from,
         address to,
         bool[] memory areFOTTokens
-    ) public virtual view returns (uint256[] memory amounts, uint256 acutalAmountOut) {
+    ) internal virtual view returns (uint256[] memory amounts, uint256 acutalAmountOut) {
         require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
         require(areFOTTokens.length == path.length, "UniswapV2Library: INVALID_FEE_PARAMS");
         amounts = new uint256[](path.length);
@@ -68,7 +73,8 @@ library UniswapV2Library2 {
         }
     }
 
-    // performs chained getAmountIn calculations on any number of pairs
+    /// @dev performs chained getAmountIn calculations on any number of pairs
+    /// @return amounts the amount need to send to 1st pair and the temporary amountOut when call to pair
     function getAmountsIn(
         address factory,
         uint256 amountOut,
@@ -85,8 +91,8 @@ library UniswapV2Library2 {
         for (uint256 i = path.length - 1; i > 0; i--) {
             (address pair, uint256 reserveIn, uint256 reserveOut) = getReservesInfo(
                 factory,
-                path[i],
-                path[i + 1]
+                path[i - 1],
+                path[i]
             );
 
             // get the actual amountOut

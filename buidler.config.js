@@ -1,5 +1,6 @@
 usePlugin('@nomiclabs/buidler-truffle5');
 usePlugin('@nomiclabs/buidler-web3');
+usePlugin('buidler-contract-sizer');
 
 // This is a sample Buidler task. To learn how to create your own go to
 // https://buidler.dev/guides/create-task.html
@@ -24,7 +25,6 @@ module.exports = {
     optimizer: {
       enabled: true,
       runs: 200
-    },
-    evmVersion: 'istanbul'
+    }
   },
 };
