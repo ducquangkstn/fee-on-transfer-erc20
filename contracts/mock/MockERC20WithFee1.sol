@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../libraries/ERC20.sol";
 import "../interfaces/IERC20Extended.sol";
 
-contract ERC20Extended1 is ERC20, IERC20Extended {
+contract MockERC20WithFee1 is ERC20, IERC20Extended {
     using SafeMath for uint256;
 
     constructor(

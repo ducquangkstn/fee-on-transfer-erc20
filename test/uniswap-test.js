@@ -3,7 +3,7 @@ const {zeroBN} = require('./helper.js');
 const BN = web3.utils.BN;
 const Helper = require('./helper.js');
 
-const ERC20Extended1 = artifacts.require('ERC20Extended1');
+const MockERC20WithFee1 = artifacts.require('MockERC20WithFee1');
 const TestToken = artifacts.require('TestToken');
 const UniswapV2Router02 = artifacts.require('UniswapV2Router02');
 const UniswapV2Factory = Helper.getTruffleContract('./node_modules/@uniswap/v2-core/build/UniswapV2Factory.json');
@@ -28,7 +28,7 @@ contract('uniswap pair', function (accounts) {
   before('set up', async () => {
     lqProvider = accounts[0];
     trader = accounts[1];
-    feeTokens.push(await ERC20Extended1.new('percentage fee token', 'fot1', new BN(10).pow(new BN(24))));
+    feeTokens.push(await MockERC20WithFee1.new('percentage fee token', 'fot1', new BN(10).pow(new BN(24))));
 
     uniswapFactory = await UniswapV2Factory.new(accounts[0], defaultTxProperties);
     weth = await WETH9.new(defaultTxProperties);
