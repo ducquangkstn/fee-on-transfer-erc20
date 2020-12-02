@@ -9,16 +9,16 @@ import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
 
 contract UniswapV2Router01 is IUniswapV2Router01 {
     address public immutable override factory;
-    address public immutable override WETH;
+    address public immutable override WETH; // solhint-disable-line
 
     modifier ensure(uint256 deadline) {
         require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
         _;
     }
 
-    constructor(address _factory, address _WETH) public {
+    constructor(address _factory, address _weth) public {
         factory = _factory;
-        WETH = _WETH;
+        WETH = _weth;
     }
 
     receive() external payable {
