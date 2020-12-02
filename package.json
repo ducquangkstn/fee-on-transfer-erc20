@@ -17,11 +17,14 @@
     "prettier-plugin-solidity": "1.0.0-alpha.54",
     "chai": "4.2.0",
     "chai-bn": "0.2.1",
-    "chai-as-promised": "7.1.1"
+    "chai-as-promised": "7.1.1",
+    "solhint-plugin-prettier": "0.0.4",
+    "solhint": "3.2.0"
   },
   "scripts": {
     "compile": "yarn buidler compile && yarn buidler size-contracts",
     "test": "yarn buidler test --no-compile",
-    "prettier": "./node_modules/.bin/prettier --write contracts/"
+    "prettier": "./node_modules/.bin/prettier --write contracts/",
+    "lint": "./node_modules/.bin/solhint -f table 'contracts/**/*.sol'"
   }
 }

@@ -10,7 +10,7 @@ import "./UniswapV2Router01.sol";
 contract UniswapV2Router02 is UniswapV2Router01 {
     using SafeMath for uint256;
 
-    constructor(address _factory, address _WETH) public UniswapV2Router01(_factory, _WETH) {}
+    constructor(address _factory, address _weth) public UniswapV2Router01(_factory, _weth) {}
 
     function addLiquiditySupportingFOTTokens(
         address[2] calldata tokens,
