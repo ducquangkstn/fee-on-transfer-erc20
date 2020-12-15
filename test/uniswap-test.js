@@ -5,7 +5,7 @@ const Helper = require('./helper.js');
 
 const MockERC20WithFee1 = artifacts.require('MockERC20WithFee1');
 const TestToken = artifacts.require('TestToken');
-const UniswapV2Router02 = artifacts.require('UniswapV2Router02');
+const UniswapV2Router02 = artifacts.require('UniswapV2Router03');
 const UniswapV2Factory = Helper.getTruffleContract('./node_modules/@uniswap/v2-core/build/UniswapV2Factory.json');
 const WETH9 = Helper.getTruffleContract('./node_modules/@uniswap/v2-periphery/build/WETH9.json');
 const UniswapV2Pair = Helper.getTruffleContract('./node_modules/@uniswap/v2-core/build/UniswapV2Pair.json');
@@ -49,17 +49,16 @@ contract('uniswap pair', function (accounts) {
       pair = await UniswapV2Pair.at(pairAddr);
     });
 
-    it('addLiquidityETH', async () => {
+    it('addLiquidity with ETH and tokenWithFee', async () => {
       let tokenAmount = new BN(10).pow(new BN(18)).mul(new BN(4));
       let ethAmount = new BN(10).pow(new BN(16)).mul(new BN(1));
       await token.approve(router.address, Helper.MaxUint256);
       // add liquidity
-      await router.addLiquidityETHSupportingFOTTokens(
+      await router.addLiquidityETHSupportingFeeOnTransferTokens(
         token.address,
         tokenAmount,
         tokenAmount,
         ethAmount,
-        true,
         lqProvider,
         Helper.MaxUint256,
         {
@@ -77,10 +76,16 @@ contract('uniswap pair', function (accounts) {
       const areFOTToken = [false, true];
       const amountIn = new BN(10).pow(new BN(16)).mul(new BN(3));
 
-      let amountQuery = await router.getAmountsOut(amountIn, path, trader, trader, areFOTToken);
+      let amountQuery = await router.getAmountsOutSupportingFeeOnTransferTokens(
+        amountIn,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
 
       let balanceBefore = await token.balanceOf(trader);
-      await router.swapExactETHForTokensSupportingFOTTokens(
+      await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
         amountQuery.actualAmountOut,
         path,
         trader,
@@ -91,18 +96,24 @@ contract('uniswap pair', function (accounts) {
       Helper.assertEqual(await token.balanceOf(trader), balanceBefore.add(amountQuery.actualAmountOut));
     });
 
-    it('swapExactTokensForETHSupportingFOTTokens', async () => {
+    it('swapExactTokensForETHSupportingFeeOnTransferTokens', async () => {
       const path = [token.address, weth.address];
       const areFOTToken = [true, false];
       const amountIn = new BN(10).pow(new BN(16)).mul(new BN(3));
 
-      let amountQuery = await router.getAmountsOut(amountIn, path, trader, trader, areFOTToken);
+      let amountQuery = await router.getAmountsOutSupportingFeeOnTransferTokens(
+        amountIn,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
       // approve and transfer token to trader
       await token.transfer(trader, amountIn);
       await token.approve(router.address, Helper.MaxUint256, {from: trader});
       // swap and get amountOut
       let balanceBefore = await Helper.getBalancePromise(trader);
-      await router.swapExactTokensForETHSupportingFOTTokens(
+      await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
         amountIn,
         amountQuery.actualAmountOut,
         path,
@@ -114,10 +125,10 @@ contract('uniswap pair', function (accounts) {
       Helper.assertEqual(await Helper.getBalancePromise(trader), balanceBefore.add(amountQuery.actualAmountOut));
     });
 
-    it('removeLiquditiyETH', async () => {
+    it('remove liquidity with ETH and tokenWithFee', async () => {
       let lqTokenAmount = await pair.balanceOf(lqProvider);
       await pair.approve(router.address, Helper.MaxUint256);
-      await router.removeLiquidityETHSupportingFOTTokens(
+      await router.removeLiquidityETHSupportingFeeOnTransferTokens(
         token.address,
         lqTokenAmount,
         zeroBN,
@@ -145,7 +156,7 @@ contract('uniswap pair', function (accounts) {
       await token.approve(router.address, Helper.MaxUint256);
       await normalToken.approve(router.address, Helper.MaxUint256);
       // add liquidity
-      await router.addLiquiditySupportingFOTTokens(
+      await router.addLiquiditySupportingFeeOnTransferTokens(
         [token.address, normalToken.address],
         [tokenAmount, normalTokenAmount],
         [tokenAmount, normalTokenAmount],
@@ -167,13 +178,19 @@ contract('uniswap pair', function (accounts) {
       const areFOTToken = [false, true];
       const amountIn = new BN(10).pow(new BN(16)).mul(new BN(3));
 
-      let amountQuery = await router.getAmountsOut(amountIn, path, trader, trader, areFOTToken);
+      let amountQuery = await router.getAmountsOutSupportingFeeOnTransferTokens(
+        amountIn,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
 
       await normalToken.transfer(trader, amountIn);
       await normalToken.approve(router.address, Helper.MaxUint256, {from: trader});
 
       let balanceBefore = await token.balanceOf(trader);
-      await router.swapExactTokensForTokensSupportingFOTTokens(
+      await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
         amountIn,
         amountQuery.actualAmountOut,
         path,
@@ -185,10 +202,16 @@ contract('uniswap pair', function (accounts) {
       Helper.assertEqual(await token.balanceOf(trader), balanceBefore.add(amountQuery.actualAmountOut));
       /// swap to extract token
       const amountOut = new BN(10).pow(new BN(16)).mul(new BN(3));
-      amountQuery = await router.getAmountsInSupportingFOTTokens(amountOut, path, trader, trader, areFOTToken);
+      amountQuery = await router.getAmountsInSupportingFeeOnTransferTokens(
+        amountOut,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
       await normalToken.transfer(trader, amountQuery[0]);
       balanceBefore = await token.balanceOf(trader);
-      await router.swapTokensForExactTokensSupportingFOTTokens(
+      await router.swapTokensForExactTokensSupportingFeeOnTransferTokens(
         amountOut,
         amountQuery[0],
         path,
@@ -206,13 +229,19 @@ contract('uniswap pair', function (accounts) {
       const areFOTToken = [true, false];
       const amountIn = new BN(10).pow(new BN(16)).mul(new BN(3));
 
-      let amountQuery = await router.getAmountsOut(amountIn, path, trader, trader, areFOTToken);
+      let amountQuery = await router.getAmountsOutSupportingFeeOnTransferTokens(
+        amountIn,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
 
       await token.transfer(trader, amountIn.mul(new BN(2)));
       await token.approve(router.address, Helper.MaxUint256, {from: trader});
 
       let balanceBefore = await normalToken.balanceOf(trader);
-      await router.swapExactTokensForTokensSupportingFOTTokens(
+      await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
         amountIn,
         amountQuery.actualAmountOut,
         path,
@@ -224,10 +253,16 @@ contract('uniswap pair', function (accounts) {
       Helper.assertEqual(await normalToken.balanceOf(trader), balanceBefore.add(amountQuery.actualAmountOut));
       /// swap to extract token
       const amountOut = new BN(10).pow(new BN(16)).mul(new BN(3));
-      amountQuery = await router.getAmountsInSupportingFOTTokens(amountOut, path, trader, trader, areFOTToken);
+      amountQuery = await router.getAmountsInSupportingFeeOnTransferTokens(
+        amountOut,
+        path,
+        trader,
+        trader,
+        areFOTToken
+      );
       await token.transfer(trader, amountQuery[0].mul(new BN(2)));
       balanceBefore = await normalToken.balanceOf(trader);
-      await router.swapTokensForExactTokensSupportingFOTTokens(
+      await router.swapTokensForExactTokensSupportingFeeOnTransferTokens(
         amountOut,
         amountQuery[0],
         path,
