@@ -37,12 +37,12 @@
     "payable-fallback": "error",
     "quotes": [
       "error",
-      "double"
+      "single"
     ],
     "reentrancy": "error",
     "state-visibility": "error",
     "use-forbidden-name": "error",
-    "var-name-mixedcase": "error",
+    "var-name-mixedcase": "off",
     "visibility-modifier-order": "error",
     "prettier/prettier": "error"
   },
